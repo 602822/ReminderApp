@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.topbar {
+    @apply flex bg-blue-500 p-2;
+}
+
+.topbar a {
+  @apply m-4 text-gray-900 font-bold hover:text-white cursor-pointer
+}
