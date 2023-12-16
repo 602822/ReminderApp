@@ -15,8 +15,14 @@ func newEventPage(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath)
 }
 
+func serveCSS(w http.ResponseWriter, r *http.Request) {
+	filepath := filepath.Join("server-side", "output.css")
+	http.ServeFile(w, r, filepath)
+}
+
 func main() {
 	http.HandleFunc("/", mainPage)
 	http.HandleFunc("/createNewEvent", newEventPage)
+	http.HandleFunc("/server-side/output.css", serveCSS)
 	http.ListenAndServe(":8080", nil)
 }
