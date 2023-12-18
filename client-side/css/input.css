@@ -9,3 +9,18 @@
 .topbar a {
   @apply m-4 text-gray-900 font-bold hover:text-white cursor-pointer
 }
+
+.newEventForm {
+  @apply flex items-center justify-center h-screen
+}
+.newEventForm form {
+  @apply bg-white p-8 rounded shadow-md
+}
+
+.newEventForm input {
+  @apply border border-gray-300 p-2 rounded
+}
+
+.newEventForm button {
+  @apply border border-gray-300 p-2 rounded
+}
