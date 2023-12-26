@@ -540,6 +540,10 @@ video {
   --tw-backdrop-sepia:  ;
 }
 
+.hidden {
+  display: none;
+}
+
 .topbar {
   display: flex;
   --tw-bg-opacity: 1;

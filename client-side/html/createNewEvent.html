@@ -13,15 +13,14 @@
         <a hx-get="/createNewEvent" trigger="click">Page 2</a>
     </div>
     <div class="newEventForm">
-    <form action="">
+    <form hx-post="/createNewEvent">
     <p>Enter a title: </p>
-    <input type="text" name="title" id="title">
+    <input type="text" name="title">
+    <input type="hidden" name="currentDate" id="currentDate" value="">
     <p>When date does the event take place?</p>
-    <input type="date" name="eventDate" id="eventDate">
-    <button hx-post="/createNewEvent">Submit</button>
-</div>
+    <input type="date" name="eventDate">
+    <button type="submit">Submit</button>
 </form>
-
-    
+</div>
 </body>
 </html>
