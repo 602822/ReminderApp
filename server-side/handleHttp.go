@@ -64,6 +64,11 @@ func serveCSS(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath)
 }
 
+func serveJS(w http.ResponseWriter, r *http.Request) {
+	filepath := filepath.Join("client-side", "js", "script.js")
+	http.ServeFile(w, r, filepath)
+}
+
 func handleFormSubmit(w http.ResponseWriter, request *http.Request) {
 
 	error := request.ParseForm()
@@ -110,5 +115,6 @@ func main() {
 	http.HandleFunc("/", mainPage)
 	http.HandleFunc("/createNewEvent", newEventPage)
 	http.HandleFunc("/server-side/output.css", serveCSS)
+	http.HandleFunc("/js/script.js", serveJS)
 	http.ListenAndServe(":8080", nil)
 }
