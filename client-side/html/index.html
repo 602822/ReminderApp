@@ -10,17 +10,20 @@
 <body hx-target="this">
     
     <div class="topbar">
-        <a hx-get="/" trigger="click" >Page 1</a>
-        <a hx-get="/createNewEvent" trigger="click" >Page 2</a>
+        <a hx-get="/" trigger="click" >Main Page</a>
+        <a hx-get="/createNewEvent" trigger="click" >Create new Event</a>
     </div>
-    <h1>Here is your current events: </h1>
-    <div id="events">
-        <h1>Event List:</h1>
-        <ul>
-            {{range .Event}}
-            <li>{{.title}} - {{.eventDate}}</li>
-            {{end}}
-        </ul>
+    <div>
+        <p class="text-lg text-gray-900 py-4 px-6"> Your current events: </p>
+        {{range .Event}}
+        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-teal-300 ml-2">
+            <div class="px-6 py-4">
+                <div class="font-bold text-xl mb-2">{{.title}}</div>
+                <p class="text-gray-700 text-base">{{.eventDate}}</p>
+            </div>
+        </div>
+        {{end}}
+
     </div>
 </body>
 </html>
