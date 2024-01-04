@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,10 +25,15 @@ type User struct {
 	ID primitive.ObjectID `bson:"_id,omitempty"`
 }
 
+type ViewData struct {
+	Event []bson.M
+}
+
 var client *mongo.Client
 var DBError error
 var userId primitive.ObjectID
 var newUser bool = true
+var events []bson.M
 
 func createNewUser() {
 	id := primitive.NewObjectID()
@@ -46,7 +53,7 @@ func createNewUser() {
 
 func retrieveUserEvents() {
 	fmt.Println("UserId: ", userId)
-	var events []bson.M
+
 	context := context.TODO()
 	eventCollection := client.Database("MyMongoDB").Collection("Events")
 	filter, err := eventCollection.Find(context, bson.M{"_id": userId})
@@ -61,6 +68,40 @@ func retrieveUserEvents() {
 	fmt.Println("Events: ", events)
 }
 
+func displayData(w http.ResponseWriter, r *http.Request) {
+	filepath := filepath.Join("client-side", "html", "index.html")
+	if events == nil {
+		// If events is nil, simply serve the HTML file without template processing
+		http.ServeFile(w, r, filepath)
+		return
+	}
+
+	viewData := ViewData{
+		Event: events,
+	}
+	htmlContent, err := os.ReadFile(filepath)
+
+	if err != nil {
+		http.Error(w, "Error reading HTML file", http.StatusInternalServerError)
+		return
+	}
+
+	// Parse and execute the HTML template with the ViewData
+	tmpl, err := template.New("index").Parse(string(htmlContent))
+	if err != nil {
+		http.Error(w, "Error parsing template", http.StatusInternalServerError)
+		return
+	}
+
+	// Execute the template with the ViewData
+	err = tmpl.Execute(w, viewData)
+	if err != nil {
+		http.Error(w, "Error executing template", http.StatusInternalServerError)
+		return
+	}
+
+}
+
 func mainPage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("You entered the main page")
 	if newUser == true {
@@ -69,19 +110,22 @@ func mainPage(w http.ResponseWriter, r *http.Request) {
 
 	retrieveUserEvents()
 
-	filepath := filepath.Join("client-side", "html", "index.html")
-	http.ServeFile(w, r, filepath)
+	if events != nil {
+		displayData(w, r)
+	} else {
+		filepath := filepath.Join("client-side", "html", "index.html")
+		http.ServeFile(w, r, filepath)
+	}
 }
 
 func newEventPage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("You entered the create new event page")
 	if r.Method == http.MethodPost {
 		handleFormSubmit(w, r)
+	} else {
+		filepath := filepath.Join("client-side", "html", "createNewEvent.html")
+		http.ServeFile(w, r, filepath)
 	}
-
-	filepath := filepath.Join("client-side", "html", "createNewEvent.html")
-	http.ServeFile(w, r, filepath)
-
 }
 
 func serveCSS(w http.ResponseWriter, r *http.Request) {
@@ -94,9 +138,9 @@ func serveJS(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath)
 }
 
-func handleFormSubmit(w http.ResponseWriter, request *http.Request) {
+func handleFormSubmit(w http.ResponseWriter, r *http.Request) {
 
-	error := request.ParseForm()
+	error := r.ParseForm()
 
 	if error != nil {
 		fmt.Println("Error parsing form data: ", error)
@@ -104,9 +148,9 @@ func handleFormSubmit(w http.ResponseWriter, request *http.Request) {
 
 	collection := client.Database("MyMongoDB").Collection("Events")
 
-	title := request.FormValue("title")
-	currentDate := request.FormValue("currentDate")
-	eventDate := request.FormValue("eventDate")
+	title := r.FormValue("title")
+	currentDate := r.FormValue("currentDate")
+	eventDate := r.FormValue("eventDate")
 
 	document := Event{
 		ID:          userId,
@@ -121,7 +165,7 @@ func handleFormSubmit(w http.ResponseWriter, request *http.Request) {
 		fmt.Println("Error adding document", err)
 	}
 	fmt.Println("Inserted a Event with Id: ", document.ID)
-
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func connectToDB() {

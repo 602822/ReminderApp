@@ -15,7 +15,12 @@
     </div>
     <h1>Here is your current events: </h1>
     <div id="events">
-        
+        <h1>Event List:</h1>
+        <ul>
+            {{range .Event}}
+            <li>{{.title}} - {{.eventDate}}</li>
+            {{end}}
+        </ul>
     </div>
 </body>
 </html>
